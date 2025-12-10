@@ -171,4 +171,4 @@
   currentPage = 1; // Reset current page to 1
   loadThreadsFromFirebase(currentPage, searchTerm);
   });
- });
+ }); 
