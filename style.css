@@ -159,4 +159,13 @@
   right: 10px;
   font-size: 0.8em;
   color: #777;
+ }
+
+ /* Styles for the search input */
+ header input[type="text"] {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-right: 10px;
+  width: 200px;
 }
