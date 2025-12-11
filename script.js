@@ -48,18 +48,23 @@
   const firstThreadIndex = (page - 1) * threadsPerPage;
 
   // Query to get the threads for the current page, ordered by timestamp descending
-  const getThreads = query(threadsRef, orderByChild('timestamp'), limitToLast(threadsPerPage));
+  const getThreads = query(threadsRef, orderByChild('timestamp'));
 
   onValue(getThreads, (snapshot) => {
   threadContainer.innerHTML = ''; // Clear the thread container
   let threads = snapshot.val();
   if (threads) {
   let index = 0;
+  let filteredThreads = Object.entries(threads).reverse().filter(([key, thread]) =>
+  thread.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
   // Convert the threads object to an array and reverse it to show the latest first
-  const threadsArray = Object.entries(threads).reverse();
-  threadsArray.forEach(([key, thread]) => {
+  //const threadsArray = Object.entries(threads).reverse();
+  //threadsArray.forEach(([key, thread]) => {
   // Filter by search term
-  if (thread.title.toLowerCase().includes(searchTerm.toLowerCase())) {
+  //if (thread.title.toLowerCase().includes(searchTerm.toLowerCase())) {
+  for (let i = firstThreadIndex; i < firstThreadIndex + threadsPerPage && i < filteredThreads.length; i++) {
+  let [key, thread] = filteredThreads[i];
   let newThread = document.createElement('div');
   newThread.classList.add('thread');
   newThread.innerHTML = `
@@ -70,8 +75,8 @@
   `;
   threadContainer.appendChild(newThread);
   }
-  index++;
-  });
+  //index++;
+  //});
   // Show "No threads yet" message if no threads match the search term
   if (threadContainer.innerHTML === '') {
   noThreadsMessage.style.display = 'block';
@@ -83,13 +88,14 @@
   noThreadsMessage.style.display = 'block'; // Show the "No threads yet" message
   threadContainer.appendChild(noThreadsMessage);
   }
-  createPaginationButtons(); // Create pagination buttons after loading threads
+  createPaginationButtons(threads ? Object.keys(threads).length : 0, searchTerm); // Create pagination buttons after loading threads
   });
   }
 
   // Function to create pagination buttons
-  function createPaginationButtons() {
+  function createPaginationButtons(totalThreads, searchTerm = '') {
   paginationContainer.innerHTML = ''; // Clear the pagination container
+  const totalPages = Math.ceil(totalThreads / threadsPerPage);
 
   // "Previous" button
   const prevButton = document.createElement('button');
@@ -105,23 +111,47 @@
   });
   paginationContainer.appendChild(prevButton);
 
+  // Create numbered page buttons
+  for (let i = 1; i <= totalPages; i++) {
+  let pageButton = document.createElement('button');
+  pageButton.textContent = i;
+  pageButton.classList.add('pagination-button');
+  if (i === currentPage) {
+  pageButton.classList.add('active-page');
+  }
+  pageButton.addEventListener('click', () => {
+  currentPage = i;
+  loadThreadsFromFirebase(currentPage, searchTerm);
+  updatePaginationButtons();
+  });
+  paginationContainer.appendChild(pageButton);
+  }
+
   // "Next" button
   const nextButton = document.createElement('button');
   nextButton.textContent = '» Siguiente';
   nextButton.classList.add('pagination-button');
+  nextButton.disabled = (currentPage === totalPages);
   nextButton.addEventListener('click', () => {
+  if (currentPage < totalPages) {
   currentPage++;
   loadThreadsFromFirebase(currentPage, searchTerm);
   updatePaginationButtons();
+  }
   });
   paginationContainer.appendChild(nextButton);
   }
 
   // Function to update pagination buttons based on current page
   function updatePaginationButtons() {
-  const prevButton = paginationContainer.querySelector('.pagination-button:first-child');
-  const nextButton = paginationContainer.querySelector('.pagination-button:last-child');
-  prevButton.disabled = (currentPage === 1);
+  const pageButtons = paginationContainer.querySelectorAll('.pagination-button');
+  pageButtons.forEach(button => {
+  if (parseInt(button.textContent) === currentPage) {
+  button.classList.add('active-page');
+  } else {
+  button.classList.remove('active-page');
+  }
+  });
   }
 
   // Load threads from Firebase on page load
@@ -171,4 +201,4 @@
   currentPage = 1; // Reset current page to 1
   loadThreadsFromFirebase(currentPage, searchTerm);
   });
- }); 
+ });
