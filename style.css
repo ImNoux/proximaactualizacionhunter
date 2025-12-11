@@ -183,3 +183,30 @@
   background-color: #333;
   color: white;
 }
+
+ /* Like button style */
+ .like-button {
+  background-color: transparent;
+  border: none;
+  color: red;
+  cursor: pointer;
+  font-size: 1em;
+  padding: 5px 10px;
+}
+
+ .like-button:hover {
+  color: #0056b3;
+}
+
+ .like-button i {
+  color: transparent; /* Initially transparent */
+  -webkit-text-stroke: 1px red; /* For outline effect */
+  text-stroke: 1px red;
+  font-size: 1.2em; /* Adjust size as needed */
+}
+
+ .like-button.liked i {
+  color: red; /* Solid red when liked */
+  -webkit-text-stroke: 0px; /* Remove outline */
+  text-stroke: 0px;
+}
