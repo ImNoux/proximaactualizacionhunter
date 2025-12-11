@@ -169,3 +169,17 @@
   margin-right: 10px;
   width: 200px;
 }
+
+ /* Style for the active page button */
+ .pagination-button.active-page {
+  background-color: #007bff; /* Blue */
+  color: white;
+  border-color: #007bff;
+ }
+
+ footer {
+  text-align: center; /* Center the footer content */
+  padding: 20px;
+  background-color: #333;
+  color: white;
+}
