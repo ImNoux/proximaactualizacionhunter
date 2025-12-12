@@ -38,10 +38,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Function to save threads to Firebase
   function saveThreadToFirebase(thread) {
-    // Add timestamp, likeCount, and likes to the thread
+    // Add timestamp, likeCount, likes, and verificado to the thread
     thread.timestamp = new Date().toLocaleDateString('es-ES'); // Get current date in dd/mm/yyyy format
     thread.likeCount = 0; // Initialize likeCount
     thread.likes = {}; // Initialize likes object
+    thread.verificado = false; // Initialize verificado as false (change to true for verified threads)
     push(threadsRef, thread);
   }
 
@@ -60,20 +61,16 @@ document.addEventListener('DOMContentLoaded', function() {
         let filteredThreads = Object.entries(threads).reverse().filter(([key, thread]) =>
           thread.title.toLowerCase().includes(searchTerm.toLowerCase())
         );
-        // Convert the threads object to an array and reverse it to show the latest first
-        //const threadsArray = Object.entries(threads).reverse();
-        //threadsArray.forEach(([key, thread]) => {
-        // Filter by search term
-        //if (thread.title.toLowerCase().includes(searchTerm.toLowerCase())) {
         for (let i = firstThreadIndex; i < firstThreadIndex + threadsPerPage && i < filteredThreads.length; i++) {
           let [key, thread] = filteredThreads[i];
           let newThread = document.createElement('div');
           newThread.classList.add('thread');
           const userId = 'user_id'; // Replace 'user_id' with actual user ID if you have authentication
           let isLiked = thread.likes && thread.likes[userId]; // Check if current user liked
+          let insigniaVerificado = thread.verificado ? '<i class="fas fa-check-circle insignia-verificado"></i>' : ''; // Ícono de verificación azul como Instagram
           newThread.innerHTML = `
             <div class="thread-date">${thread.timestamp}</div>
-            <h2>${thread.title}</h2>
+            <h2>${thread.title} ${insigniaVerificado}</h2>
             <p><strong>Categoría:</strong> ${thread.category}</p>
             <p>${thread.description}</p>
             <button class="like-button ${isLiked ? 'liked' : ''}" data-thread-id="${key}" data-like-count="${thread.likeCount || 0}">
@@ -82,8 +79,6 @@ document.addEventListener('DOMContentLoaded', function() {
           `;
           threadContainer.appendChild(newThread);
         }
-        //index++;
-        //});
         // Show "No threads yet" message if no threads match the search term
         if (threadContainer.innerHTML === '') {
           noThreadsMessage.style.display = 'block';
