@@ -59,7 +59,8 @@
                 </div>
 
                 <form id="commentForm">
-                    <input type="text" id="commentInput" placeholder="Escribe un comentario..." required autocomplete="off">
+                    <input type="text" id="usernameInput" placeholder="Tu Nombre" required autocomplete="off" maxlength="15">
+                    <input type="text" id="commentInput" placeholder="Escribe..." required autocomplete="off">
                     <button type="submit"><i class="fas fa-paper-plane"></i></button>
                 </form>
             </div>
@@ -83,7 +84,7 @@
 
     <footer>
         <p><a href="https://www.instagram.com/arc_clxn?igsh=djhzazNnbmFzOXIy">ARC_CLXN</a> &copy; 2025. Todos los derechos reservados.</p>
-        <p class="version">v1.1.0</p>
+        <p class="version">v1.3.0</p>
     </footer>
 
     <script type="module" src="script.js"></script>
@@ -110,7 +111,7 @@
 
         function openInfoPage(type) {
             let title = "", content = "";
-            if (type === 'updates') { title = "Actualizaciones"; content = "<h3>v1.2.0</h3><ul><li>Sistema de comentarios.</li><li>Mejoras de color y diseño.</li></ul>"; }
+            if (type === 'updates') { title = "Actualizaciones"; content = "<h3>v1.3.0</h3><ul><li>Nombre de usuario en comentarios.</li><li>Sistema de vistas.</li></ul>"; }
             else if (type === 'about') { title = "Quiénes Somos"; content = "<h3>ARC_CLXN</h3><p>Somos un equipo dedicado a encontrar los mejores talentos.</p>"; }
             else if (type === 'contact') { title = "Contactos"; content = "<h3>Instagram</h3><p>@arc_clxn</p>"; }
 
