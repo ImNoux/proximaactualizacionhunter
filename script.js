@@ -62,7 +62,7 @@ window.openComments = function(threadId) {
     list.innerHTML = '<p style="text-align:center;">Cargando...</p>';
     modal.style.display = "block";
 
-    // 1. INCREMENTAR VISTAS (Views)
+    // 1. INCREMENTAR VISTAS
     const threadViewRef = ref(db, `threads/${threadId}/views`);
     runTransaction(threadViewRef, (currentViews) => {
         return (currentViews || 0) + 1;
@@ -125,10 +125,18 @@ document.addEventListener('DOMContentLoaded', function () {
         push(threadsRef, thread);
     }
 
-    // Esta función ahora sirve para Likes y para Vistas
+    // --- FUNCIÓN DE FORMATO MEJORADA (1 mill, 1.5 mill) ---
     function formatCount(count) {
-        if (count >= 1000000) return (count / 1000000).toFixed(1) + ' mill.';
-        if (count >= 1000) return (count / 1000).toFixed(0) + ' mil';
+        if (count >= 1000000) {
+            let val = (count / 1000000).toFixed(1);
+            // Si termina en .0, lo quitamos (ej: 1.0 -> 1)
+            return val.replace('.0', '') + ' mill.';
+        }
+        if (count >= 1000) {
+            let val = (count / 1000).toFixed(1);
+            // Si termina en .0, lo quitamos (ej: 1.0 -> 1)
+            return val.replace('.0', '') + ' mil';
+        }
         return count;
     }
 
@@ -154,11 +162,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     let isLiked = thread.likes && thread.likes[userId];
                     let insigniaVerificado = thread.verificado ? '<i class="fas fa-check-circle insignia-verificado"></i>' : '';
                     
-                    // Formatear contadores
-                    let formattedLikeCount = formatCount(thread.likeCount || 0);
-                    let formattedViewCount = formatCount(thread.views || 0); // AQUI APLICAMOS EL FORMATO A LAS VISTAS
+                    // --- APLICAMOS EL FORMATO A TODO ---
+                    let rawCommentCount = thread.comments ? Object.keys(thread.comments).length : 0;
                     
-                    let commentCount = thread.comments ? Object.keys(thread.comments).length : 0;
+                    let formattedLikeCount = formatCount(thread.likeCount || 0);
+                    let formattedViewCount = formatCount(thread.views || 0);
+                    let formattedCommentCount = formatCount(rawCommentCount); // <--- AHORA TAMBIÉN COMENTARIOS
 
                     newThread.innerHTML = `
                         <div class="thread-date">${thread.displayDate}</div>
@@ -170,7 +179,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 <i class="fas fa-heart"></i> ${formattedLikeCount}
                             </button>
                             <button class="comment-button" onclick="openComments('${key}')">
-                                <i class="far fa-comment"></i> ${commentCount}
+                                <i class="far fa-comment"></i> ${formattedCommentCount}
                             </button>
                             <span class="view-button" title="Vistas">
                                 <i class="far fa-eye"></i> ${formattedViewCount}
