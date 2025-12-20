@@ -333,4 +333,4 @@ document.addEventListener('DOMContentLoaded', function () {
     closeContact.addEventListener('click', function () {
         contactModal.style.display = 'none';
     });
-});
+}); 
