@@ -11,6 +11,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.2.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.2.0/firebase-database.js"></script>
     <style>
+        /* Aquí va todo el CSS que me enviaste, sin cambios */
         /* Estilos base */
         body {
             font-family: Arial, sans-serif;
@@ -102,6 +103,56 @@
             50% { color: #1976d2; } /* Azul */
             75% { color: #ffeb3b; } /* Dorado */
             100% { color: #d32f2f; } /* Rojo */
+        }
+
+        /* Estilos para el menú hamburguesa */
+        .hamburger-menu {
+            position: relative;
+        }
+
+        #hamburgerButton {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 10px;
+        }
+
+        #hamburgerButton:hover {
+            color: #ffeb3b; /* Dorado navideño al hover */
+        }
+
+        .hamburger-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: #fefefe;
+            border: 1px solid #888;
+            width: 200px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .hamburger-content a {
+            display: block;
+            padding: 10px 15px;
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .hamburger-content a:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* Estilos para las descripciones en el menú hamburguesa */
+        .menu-description {
+            font-size: 0.8em;
+            color: #666;
+            display: block;
+            margin-top: 2px;
         }
 
         #countdown-container {
@@ -372,6 +423,17 @@
     </button>
 
     <header>
+        <div class="hamburger-menu">
+            <button id="hamburgerButton">☰</button>
+            <div class="hamburger-content" id="hamburgerContent">
+                <a href="#" id="updatesLink">Actualizaciones</a>
+                <span class="menu-description">Mantente al día con las últimas novedades.</span>
+                <a href="#" id="aboutLink">Quienes somos</a>
+                <span class="menu-description">Conoce más sobre nuestra comunidad.</span>
+                <a href="#" id="contactLink">Contactos</a>
+                <span class="menu-description">Ponte en contacto con nosotros.</span>
+            </div>
+        </div>
         <h1>Reclutamientos</h1>
         <div id="newThreadButtonContainer">
             <button id="newThreadButton">+ Nuevo</button>
@@ -395,6 +457,25 @@
             </div>
         </div>
     </header>
+
+    <!-- Modales para las opciones del menú -->
+    <div class="modal-content" id="updatesModal">
+        <span class="close-button" id="closeUpdates">&times;</span>
+        <h2>Actualizaciones</h2>
+                <p>¡Mantente al día! Aquí encontrarás las últimas actualizaciones de nuestra comunidad, como nuevos eventos en Roblox, mejoras en el foro y anuncios importantes. Versión actual: v1.1.0.</p>
+    </div>
+
+    <div class="modal-content" id="aboutModal">
+        <span class="close-button" id="closeAbout">&times;</span>
+        <h2>Quienes somos</h2>
+        <p>Somos una pequeña comunidad apasionada de Roblox dedicada a reclutar y conectar jugadores talentosos. Nos enfocamos en juegos cooperativos, eventos temáticos y construir una red de amigos. ¡Únete y sé parte de la diversión!</p>
+    </div>
+
+    <div class="modal-content" id="contactModal">
+        <span class="close-button" id="closeContact">&times;</span>
+        <h2>Contactos</h2>
+        <p>¡Contáctanos! Síguenos en Instagram: <a href="https://www.instagram.com/arc_clxn?igsh=djhzazNnbmFzOXIy" target="_blank">@arc_clxn</a>. Únete a nuestro Discord para charlar en tiempo real. ¿Tienes preguntas? Envía un mensaje directo.</p>
+    </div>
 
     <input type="text" id="searchInput" placeholder="Buscar por título...">
 
