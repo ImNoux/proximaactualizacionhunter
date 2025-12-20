@@ -84,7 +84,7 @@
 
     <footer>
         <p><a href="https://www.instagram.com/arc_clxn?igsh=djhzazNnbmFzOXIy">ARC_CLXN</a> &copy; 2025. Todos los derechos reservados.</p>
-        <p class="version">v1.3.0</p>
+        <p class="version">v1.3.1</p>
     </footer>
 
     <script type="module" src="script.js"></script>
@@ -111,13 +111,105 @@
 
         function openInfoPage(type) {
             let title = "", content = "";
-            if (type === 'updates') { title = "Actualizaciones"; content = "<h3>v1.3.0</h3><ul><li>Nombre de usuario en comentarios.</li><li>Sistema de vistas.</li></ul>"; }
-            else if (type === 'about') { title = "Quiénes Somos"; content = "<h3>ARC_CLXN</h3><p>Somos un equipo dedicado a encontrar los mejores talentos.</p>"; }
-            else if (type === 'contact') { title = "Contactos"; content = "<h3>Instagram</h3><p>@arc_clxn</p>"; }
+            if (type === 'updates') { 
+                title = "Actualizaciones"; 
+                content = "<h3>v1.3.1</h3><ul><li>Interfaz unificada.</li><li>Sistema de comentarios y vistas.</li></ul>"; 
+            } else if (type === 'about') { 
+                title = "Quiénes Somos"; 
+                content = "<h3>ARC_CLXN</h3><p>Somos un equipo dedicado a encontrar los mejores talentos.</p>"; 
+            } else if (type === 'contact') { 
+                title = "Contactos"; 
+                content = "<h3>Instagram</h3><p>@arc_clxn</p>"; 
+            }
 
-            const newWindow = window.open("", "_blank", "width=600,height=500");
+            // HTML de los copos de nieve para inyectar en la nueva ventana
+            const snowflakesHTML = `
+                <div class="snowflake">❄</div><div class="snowflake">❅</div><div class="snowflake">❄</div>
+                <div class="snowflake">❅</div><div class="snowflake">❄</div><div class="snowflake">❅</div>
+                <div class="snowflake">❄</div><div class="snowflake">❅</div><div class="snowflake">❄</div>
+                <div class="snowflake">❅</div><div class="snowflake">❄</div><div class="snowflake">❅</div>
+                <div class="snowflake">❄</div><div class="snowflake">❅</div><div class="snowflake">❄</div>
+            `;
+
+            const newWindow = window.open("", "_blank", "width=600,height=600");
             newWindow.document.write(`
-                <!DOCTYPE html><html lang="es"><head><title>${title}</title><style>body{font-family:Arial;padding:40px;background:linear-gradient(to bottom,#0f4c75,#3282b8);color:white;text-align:center;margin:0;overflow:hidden;height:100vh;}.snowflake{position:absolute;top:-20px;color:#fff;font-size:1.5em;animation:fall linear infinite;pointer-events:none;}@keyframes fall{to{transform:translateY(110vh) rotate(360deg);}}.container{background:rgba(255,255,255,0.95);color:#333;padding:30px;border-radius:10px;border:2px solid #d32f2f;position:relative;z-index:10;}button{margin-top:20px;padding:10px;background:#ffeb3b;border:none;cursor:pointer;font-weight:bold;}</style></head><body><div class="snowflake" style="left:10%;animation-duration:5s;">❄</div><div class="snowflake" style="left:50%;animation-duration:4s;">❄</div><div class="snowflake" style="left:90%;animation-duration:6s;">❄</div><div class="container"><h2>${title}</h2>${content}<button onclick="window.close()">Cerrar</button></div></body></html>
+                <!DOCTYPE html>
+                <html lang="es">
+                <head>
+                    <title>${title}</title>
+                    <style>
+                        /* Reseteo básico */
+                        *, *::before, *::after { box-sizing: border-box; }
+                        
+                        body { 
+                            font-family: Arial, sans-serif; 
+                            margin: 0; padding: 0;
+                            /* FONDO IDÉNTICO A LA APP PRINCIPAL */
+                            background: linear-gradient(to bottom, #0f4c75, #3282b8, #bbe1fa); 
+                            color: #333; 
+                            height: 100vh; 
+                            overflow: hidden; 
+                            display: flex; 
+                            justify-content: center; 
+                            align-items: center;
+                            position: relative;
+                            font-size: 1.2em; /* Letra grande */
+                        }
+
+                        /* ESTILOS DE NIEVE IDÉNTICOS */
+                        .snowflake { position: absolute; top: -10px; color: #fff; font-size: 1em; animation: fall linear infinite; pointer-events: none; z-index: 1000; }
+                        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+                        .snowflake:nth-child(odd) { animation-duration: 10s; left: 10%; }
+                        .snowflake:nth-child(even) { animation-duration: 15s; left: 20%; }
+                        .snowflake:nth-child(3n) { animation-duration: 12s; left: 30%; }
+                        .snowflake:nth-child(4n) { animation-duration: 8s; left: 40%; }
+                        .snowflake:nth-child(5n) { animation-duration: 14s; left: 50%; }
+                        .snowflake:nth-child(6n) { animation-duration: 11s; left: 60%; }
+                        .snowflake:nth-child(7n) { animation-duration: 9s; left: 70%; }
+                        .snowflake:nth-child(8n) { animation-duration: 13s; left: 80%; }
+                        .snowflake:nth-child(9n) { animation-duration: 7s; left: 90%; }
+
+                        /* CONTENEDOR CENTRAL (TARJETA) */
+                        .container { 
+                            background: rgba(255, 255, 255, 0.95); 
+                            color: #333; 
+                            padding: 40px; 
+                            border-radius: 10px; 
+                            border: 2px solid #d32f2f; /* Borde rojo igual que los hilos */
+                            width: 90%; 
+                            max-width: 500px;
+                            text-align: center;
+                            position: relative; 
+                            z-index: 2000; 
+                            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                        }
+
+                        h2 { color: #d32f2f; margin-top: 0; font-size: 1.8em; }
+                        h3 { color: #388e3c; }
+                        
+                        button { 
+                            margin-top: 25px; 
+                            padding: 12px 25px; 
+                            background: #ffeb3b; 
+                            border: none; 
+                            cursor: pointer; 
+                            font-weight: bold; 
+                            border-radius: 5px;
+                            font-size: 1em;
+                        }
+                        button:hover { background-color: #fdd835; }
+                    </style>
+                </head>
+                <body>
+                    ${snowflakesHTML}
+                    
+                    <div class="container">
+                        <h2>${title}</h2>
+                        ${content}
+                        <button onclick="window.close()">Cerrar</button>
+                    </div>
+                </body>
+                </html>
             `);
         }
         
