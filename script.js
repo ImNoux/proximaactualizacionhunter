@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://esm.sh/firebase/app";
-import { getDatabase, ref, push, set, onValue, query, orderByKey, limitToFirst, orderByChild, limitToLast, update, off } from "https://esm.sh/firebase/database";
+import { getDatabase, ref, push, set, onValue, query, orderByKey, limitToFirst, orderByChild, limitToLast, update, off, runTransaction } from "https://esm.sh/firebase/database";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDM9E8Y_YW-ld8MH8-yKS345hklA0v5P_w",
@@ -54,7 +54,7 @@ window.toggleMenu = function() {
     if (dropdown) dropdown.classList.toggle('show');
 };
 
-// --- LOGICA DE COMENTARIOS ---
+// --- LOGICA DE COMENTARIOS Y VISTAS ---
 window.openComments = function(threadId) {
     activeThreadId = threadId;
     const modal = document.getElementById('commentsModal');
@@ -62,6 +62,13 @@ window.openComments = function(threadId) {
     list.innerHTML = '<p style="text-align:center;">Cargando...</p>';
     modal.style.display = "block";
 
+    // 1. INCREMENTAR VISTAS (Views)
+    const threadViewRef = ref(db, `threads/${threadId}/views`);
+    runTransaction(threadViewRef, (currentViews) => {
+        return (currentViews || 0) + 1;
+    });
+
+    // 2. CARGAR COMENTARIOS
     const commentsRef = ref(db, `threads/${threadId}/comments`);
     off(commentsRef);
 
@@ -114,13 +121,15 @@ document.addEventListener('DOMContentLoaded', function () {
         thread.timestamp = Date.now();
         thread.displayDate = new Date().toLocaleDateString('es-ES');
         thread.likeCount = 0;
+        thread.views = 0; 
         push(threadsRef, thread);
     }
 
-    function formatLikeCount(likeCount) {
-        if (likeCount >= 1000000) return (likeCount / 1000000).toFixed(1) + ' mill.';
-        if (likeCount >= 1000) return (likeCount / 1000).toFixed(0) + ' mil';
-        return likeCount;
+    // Esta función ahora sirve para Likes y para Vistas
+    function formatCount(count) {
+        if (count >= 1000000) return (count / 1000000).toFixed(1) + ' mill.';
+        if (count >= 1000) return (count / 1000).toFixed(0) + ' mil';
+        return count;
     }
 
     function loadThreadsFromFirebase(page, searchTerm = '') {
@@ -144,7 +153,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     const userId = getUserId();
                     let isLiked = thread.likes && thread.likes[userId];
                     let insigniaVerificado = thread.verificado ? '<i class="fas fa-check-circle insignia-verificado"></i>' : '';
-                    let formattedLikeCount = formatLikeCount(thread.likeCount || 0);
+                    
+                    // Formatear contadores
+                    let formattedLikeCount = formatCount(thread.likeCount || 0);
+                    let formattedViewCount = formatCount(thread.views || 0); // AQUI APLICAMOS EL FORMATO A LAS VISTAS
+                    
                     let commentCount = thread.comments ? Object.keys(thread.comments).length : 0;
 
                     newThread.innerHTML = `
@@ -159,6 +172,9 @@ document.addEventListener('DOMContentLoaded', function () {
                             <button class="comment-button" onclick="openComments('${key}')">
                                 <i class="far fa-comment"></i> ${commentCount}
                             </button>
+                            <span class="view-button" title="Vistas">
+                                <i class="far fa-eye"></i> ${formattedViewCount}
+                            </span>
                         </div>
                     `;
                     threadContainer.appendChild(newThread);
