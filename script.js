@@ -275,4 +275,4 @@ document.addEventListener('DOMContentLoaded', function () {
             loadThreadsFromFirebase(currentPage, searchTerm);
         };
     }
-});
+}); 
