@@ -35,7 +35,6 @@ function getUserId() {
     }
     return userId;
 }
-
 // Function to update the countdown timer
 function updateCountdown() {
     const now = new Date().getTime();
@@ -74,19 +73,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Funcionalidad del menú hamburguesa
-    const hamburgerButton = document.getElementById('hamburgerButton');
-    const hamburgerModal = document.getElementById('hamburgerModal');
-    hamburgerButton.addEventListener('click', function() {
-        hamburgerModal.style.display = hamburgerModal.style.display === 'block' ? 'none' : 'block';
-    });
-    // Cerrar el menú al hacer clic fuera
-    document.addEventListener('click', function(event) {
-        if (!hamburgerButton.contains(event.target) && !hamburgerModal.contains(event.target)) {
-            hamburgerModal.style.display = 'none';
-        }
-    });
-
     const newThreadButton = document.getElementById('newThreadButton');
     const newThreadModalContent = document.getElementById('newThreadModalContent');
     const closeButton = document.querySelector('.close-button');
@@ -96,10 +82,23 @@ document.addEventListener('DOMContentLoaded', function () {
     const paginationContainer = document.getElementById('pagination-container');
     const searchInput = document.getElementById('searchInput'); // Search input
 
-    // Function to save threads to Firebase
+    // Elementos del menú hamburguesa y modales
+    const hamburgerButton = document.getElementById('hamburgerButton');
+    const hamburgerContent = document.getElementById('hamburgerContent');
+    const updatesLink = document.getElementById('updatesLink');
+    const aboutLink = document.getElementById('aboutLink');
+    const contactLink = document.getElementById('contactLink');
+    const updatesModal = document.getElementById('updatesModal');
+    const aboutModal = document.getElementById('aboutModal');
+    const contactModal = document.getElementById('contactModal');
+    const closeUpdates = document.getElementById('closeUpdates');
+    const closeAbout = document.getElementById('closeAbout');
+    const closeContact = document.getElementById('closeContact');
+      // Function to save threads to Firebase
     function saveThreadToFirebase(thread) {
         // Add timestamp, likeCount, likes, and verificado to the thread
-        thread.timestamp = new Date().toLocaleDateString('es-ES'); // Get current date in dd/mm/yyyy format
+        thread.timestamp = Date.now(); // Use numeric timestamp for proper sorting
+        thread.displayDate = new Date().toLocaleDateString('es-ES'); // Display date in dd/mm/yyyy format
         thread.likeCount = 0; // Initialize likeCount
         thread.likes = {}; // Initialize likes object
         thread.verificado = false; // Initialize verificado as false (change to true for verified threads)
@@ -122,17 +121,21 @@ document.addEventListener('DOMContentLoaded', function () {
     function loadThreadsFromFirebase(page, searchTerm = '') {
         const firstThreadIndex = (page - 1) * threadsPerPage;
 
-        // Query to get the threads for the current page, ordered by timestamp descending
-        const getThreads = query(threadsRef, orderByKey());
+        // Query to get all threads, ordered by timestamp descending
+        const getThreads = query(threadsRef, orderByChild('timestamp'));
 
         onValue(getThreads, (snapshot) => {
             threadContainer.innerHTML = ''; // Clear the thread container
             let threads = snapshot.val();
             if (threads) {
-                let index = 0;
-                let filteredThreads = Object.entries(threads).reverse().filter(([key, thread]) =>
+                // Sort threads by timestamp descending (newest first)
+                let allThreads = Object.entries(threads).sort((a, b) => b[1].timestamp - a[1].timestamp);
+                // Filter by search term
+                let filteredThreads = allThreads.filter(([key, thread]) =>
                     thread.title.toLowerCase().includes(searchTerm.toLowerCase())
                 );
+                totalThreads = filteredThreads.length; // Update total threads for pagination
+                // Display threads for the current page
                 for (let i = firstThreadIndex; i < firstThreadIndex + threadsPerPage && i < filteredThreads.length; i++) {
                     let [key, thread] = filteredThreads[i];
                     let newThread = document.createElement('div');
@@ -142,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     let insigniaVerificado = thread.verificado ? '<i class="fas fa-check-circle insignia-verificado"></i>' : ''; // Ícono de verificación azul como Instagram
                     let formattedLikeCount = formatLikeCount(thread.likeCount || 0);
                     newThread.innerHTML = `
-            <div class="thread-date">${thread.timestamp}</div>
+            <div class="thread-date">${thread.displayDate}</div>
             <h2>${thread.title} ${insigniaVerificado}</h2>
             <p><strong>Categoría:</strong> ${thread.category}</p>
             <p>${thread.description}</p>
@@ -153,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     threadContainer.appendChild(newThread);
                 }
                 // Show "No threads yet" message if no threads match the search term
-                if (threadContainer.innerHTML === '') {
+                if (filteredThreads.length === 0) {
                     noThreadsMessage.style.display = 'block';
                     threadContainer.appendChild(noThreadsMessage);
                 } else {
@@ -162,8 +165,9 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 noThreadsMessage.style.display = 'block'; // Show the "No threads yet" message
                 threadContainer.appendChild(noThreadsMessage);
+                totalThreads = 0;
             }
-            createPaginationButtons(threads ? Object.keys(threads).length : 0, searchTerm); // Create pagination buttons after loading threads
+            createPaginationButtons(totalThreads, searchTerm); // Create pagination buttons after loading threads
             // Attach event listeners to like buttons after they are added to the DOM
             const likeButtons = document.querySelectorAll('.like-button');
             likeButtons.forEach(button => {
@@ -187,8 +191,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     }
-
-    // Function to create pagination buttons
+      // Function to create pagination buttons
     function createPaginationButtons(totalThreads, searchTerm = '') {
         paginationContainer.innerHTML = ''; // Clear the pagination container
         const totalPages = Math.ceil(totalThreads / threadsPerPage);
@@ -296,5 +299,38 @@ document.addEventListener('DOMContentLoaded', function () {
         searchTerm = event.target.value;
         currentPage = 1; // Reset current page to 1
         loadThreadsFromFirebase(currentPage, searchTerm);
+    });
+      // Event listeners para el menú hamburguesa
+    hamburgerButton.addEventListener('click', function () {
+        hamburgerContent.style.display = (hamburgerContent.style.display === 'none' || hamburgerContent.style.display === '') ? 'block' : 'none';
+    });
+
+    // Event listeners para abrir modales
+    updatesLink.addEventListener('click', function () {
+        updatesModal.style.display = 'block';
+        hamburgerContent.style.display = 'none'; // Cerrar menú hamburguesa
+    });
+
+    aboutLink.addEventListener('click', function () {
+        aboutModal.style.display = 'block';
+        hamburgerContent.style.display = 'none';
+    });
+
+    contactLink.addEventListener('click', function () {
+        contactModal.style.display = 'block';
+        hamburgerContent.style.display = 'none';
+    });
+
+    // Cerrar modales
+    closeUpdates.addEventListener('click', function () {
+        updatesModal.style.display = 'none';
+    });
+
+    closeAbout.addEventListener('click', function () {
+        aboutModal.style.display = 'none';
+    });
+
+    closeContact.addEventListener('click', function () {
+        contactModal.style.display = 'none';
     });
 });
