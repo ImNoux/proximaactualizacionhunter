@@ -59,6 +59,14 @@ window.openComments = function(threadId) {
     activeThreadId = threadId;
     const modal = document.getElementById('commentsModal');
     const list = document.getElementById('commentsList');
+    const usernameInput = document.getElementById('usernameInput');
+
+    // Cargar nombre guardado
+    const savedName = localStorage.getItem('chatUsername');
+    if (savedName && usernameInput) {
+        usernameInput.value = savedName;
+    }
+
     list.innerHTML = '<p style="text-align:center;">Cargando...</p>';
     modal.style.display = "block";
 
@@ -80,7 +88,13 @@ window.openComments = function(threadId) {
                 const item = document.createElement('div');
                 item.classList.add('comment-item');
                 const date = new Date(comment.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                item.innerHTML = `<span class="comment-text">${comment.text}</span> <span class="comment-date">${date}</span>`;
+                // Mostrar Nombre: Mensaje
+                const authorName = comment.username || 'Anónimo';
+                item.innerHTML = `
+                    <span class="comment-author">${authorName}:</span> 
+                    <span class="comment-text">${comment.text}</span> 
+                    <span class="comment-date">${date}</span>
+                `;
                 list.appendChild(item);
             });
             list.scrollTop = list.scrollHeight;
@@ -95,10 +109,22 @@ if(commentForm) {
     commentForm.addEventListener('submit', function(e) {
         e.preventDefault();
         const input = document.getElementById('commentInput');
+        const usernameInput = document.getElementById('usernameInput');
+        
         const text = input.value.trim();
+        const username = usernameInput.value.trim() || 'Anónimo';
+
         if (text && activeThreadId) {
+            // Guardar nombre para la próxima
+            localStorage.setItem('chatUsername', username);
+
             const commentsRef = ref(db, `threads/${activeThreadId}/comments`);
-            push(commentsRef, { text: text, timestamp: Date.now(), userId: getUserId() });
+            push(commentsRef, { 
+                text: text, 
+                username: username, // GUARDAMOS EL NOMBRE
+                timestamp: Date.now(), 
+                userId: getUserId() 
+            });
             input.value = '';
         }
     });
@@ -125,16 +151,13 @@ document.addEventListener('DOMContentLoaded', function () {
         push(threadsRef, thread);
     }
 
-    // --- FUNCIÓN DE FORMATO MEJORADA (1 mill, 1.5 mill) ---
     function formatCount(count) {
         if (count >= 1000000) {
             let val = (count / 1000000).toFixed(1);
-            // Si termina en .0, lo quitamos (ej: 1.0 -> 1)
             return val.replace('.0', '') + ' mill.';
         }
         if (count >= 1000) {
             let val = (count / 1000).toFixed(1);
-            // Si termina en .0, lo quitamos (ej: 1.0 -> 1)
             return val.replace('.0', '') + ' mil';
         }
         return count;
@@ -162,12 +185,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     let isLiked = thread.likes && thread.likes[userId];
                     let insigniaVerificado = thread.verificado ? '<i class="fas fa-check-circle insignia-verificado"></i>' : '';
                     
-                    // --- APLICAMOS EL FORMATO A TODO ---
                     let rawCommentCount = thread.comments ? Object.keys(thread.comments).length : 0;
                     
                     let formattedLikeCount = formatCount(thread.likeCount || 0);
                     let formattedViewCount = formatCount(thread.views || 0);
-                    let formattedCommentCount = formatCount(rawCommentCount); // <--- AHORA TAMBIÉN COMENTARIOS
+                    let formattedCommentCount = formatCount(rawCommentCount);
 
                     newThread.innerHTML = `
                         <div class="thread-date">${thread.displayDate}</div>
@@ -275,4 +297,4 @@ document.addEventListener('DOMContentLoaded', function () {
             loadThreadsFromFirebase(currentPage, searchTerm);
         };
     }
-}); 
+});
