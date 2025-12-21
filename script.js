@@ -33,22 +33,6 @@ function getUserId() {
     return userId;
 }
 
-function updateCountdown() {
-    const now = new Date().getTime();
-    const christmas = new Date('December 25, 2025 00:00:00').getTime();
-    const difference = christmas - now;
-
-    if (difference > 0) {
-        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-        document.getElementById('countdown').innerHTML = `Faltan ${days} días, ${hours} horas ${minutes} minutos y ${seconds} segundos para Navidad`;
-    } else {
-        document.getElementById('countdown').innerHTML = '¡Feliz Navidad!';
-    }
-}
-
 window.toggleMenu = function() {
     const dropdown = document.querySelector('.menu-dropdown');
     if (dropdown) dropdown.classList.toggle('show');
@@ -67,16 +51,14 @@ window.openComments = function(threadId) {
         usernameInput.value = savedName;
     }
 
-    list.innerHTML = '<p style="text-align:center;">Cargando...</p>';
+    list.innerHTML = '<p style="text-align:center; padding: 20px;">Cargando...</p>';
     modal.style.display = "block";
 
-    // 1. INCREMENTAR VISTAS
     const threadViewRef = ref(db, `threads/${threadId}/views`);
     runTransaction(threadViewRef, (currentViews) => {
         return (currentViews || 0) + 1;
     });
 
-    // 2. CARGAR COMENTARIOS
     const commentsRef = ref(db, `threads/${threadId}/comments`);
     off(commentsRef);
 
@@ -88,7 +70,6 @@ window.openComments = function(threadId) {
                 const item = document.createElement('div');
                 item.classList.add('comment-item');
                 const date = new Date(comment.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                // Mostrar Nombre: Mensaje
                 const authorName = comment.username || 'Anónimo';
                 item.innerHTML = `
                     <span class="comment-author">${authorName}:</span> 
@@ -99,7 +80,7 @@ window.openComments = function(threadId) {
             });
             list.scrollTop = list.scrollHeight;
         } else {
-            list.innerHTML = '<p style="text-align:center; color:#999;">No hay comentarios aún.</p>';
+            list.innerHTML = '<p style="text-align:center; color:#888; margin-top: 20px;">Sé el primero en comentar.</p>';
         }
     });
 };
@@ -115,13 +96,11 @@ if(commentForm) {
         const username = usernameInput.value.trim() || 'Anónimo';
 
         if (text && activeThreadId) {
-            // Guardar nombre para la próxima
             localStorage.setItem('chatUsername', username);
-
             const commentsRef = ref(db, `threads/${activeThreadId}/comments`);
             push(commentsRef, { 
                 text: text, 
-                username: username, // GUARDAMOS EL NOMBRE
+                username: username, 
                 timestamp: Date.now(), 
                 userId: getUserId() 
             });
@@ -130,10 +109,53 @@ if(commentForm) {
     });
 }
 
+// --- LÓGICA DE ROBUX REBOTADORES ---
+function initBouncingRobux() {
+    const container = document.getElementById('floating-robux-container');
+    if (!container) return;
+
+    const robuxCount = 20; 
+    const robuxUrl = "https://upload.wikimedia.org/wikipedia/commons/c/c7/Robux_2019_Logo_gold.svg";
+    const robuxs = [];
+
+    for (let i = 0; i < robuxCount; i++) {
+        const img = document.createElement('img');
+        img.src = robuxUrl;
+        img.classList.add('bouncing-robux');
+        
+        let x = Math.random() * (window.innerWidth - 50);
+        let y = Math.random() * (window.innerHeight - 50);
+        let vx = (Math.random() - 0.5) * 5; 
+        let vy = (Math.random() - 0.5) * 5; 
+        
+        container.appendChild(img);
+        robuxs.push({ element: img, x, y, vx, vy });
+    }
+
+    function animate() {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const size = 40; 
+
+        robuxs.forEach(robux => {
+            robux.x += robux.vx;
+            robux.y += robux.vy;
+
+            if (robux.x <= 0 || robux.x + size >= width) robux.vx *= -1;
+            if (robux.y <= 0 || robux.y + size >= height) robux.vy *= -1;
+
+            robux.element.style.transform = `translate(${robux.x}px, ${robux.y}px)`;
+        });
+
+        requestAnimationFrame(animate);
+    }
+    animate();
+}
+
 // --- LÓGICA PRINCIPAL ---
 document.addEventListener('DOMContentLoaded', function () {
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
+    
+    initBouncingRobux();
 
     const newThreadButton = document.getElementById('newThreadButton');
     const newThreadModalContent = document.getElementById('newThreadModalContent');
@@ -152,15 +174,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function formatCount(count) {
-        if (count >= 1000000) {
-            let val = (count / 1000000).toFixed(1);
-            return val.replace('.0', '') + ' mill.';
-        }
-        if (count >= 1000) {
-            let val = (count / 1000).toFixed(1);
-            return val.replace('.0', '') + ' mil';
-        }
-        return count;
+        let num = Number(count);
+        if (num >= 1000000) return (num / 1000000).toFixed(1).replace('.0','') + ' mill.';
+        if (num >= 1000) return (num / 1000).toFixed(1).replace('.0','') + ' mil';
+        return num;
     }
 
     function loadThreadsFromFirebase(page, searchTerm = '') {
@@ -184,18 +201,39 @@ document.addEventListener('DOMContentLoaded', function () {
                     const userId = getUserId();
                     let isLiked = thread.likes && thread.likes[userId];
                     let insigniaVerificado = thread.verificado ? '<i class="fas fa-check-circle insignia-verificado"></i>' : '';
-                    
                     let rawCommentCount = thread.comments ? Object.keys(thread.comments).length : 0;
                     
                     let formattedLikeCount = formatCount(thread.likeCount || 0);
                     let formattedViewCount = formatCount(thread.views || 0);
                     let formattedCommentCount = formatCount(rawCommentCount);
 
+                    // --- DETECTAR SI ES VIDEO O IMAGEN PARA MOSTRARLO ---
+                    let mediaHTML = '';
+                    if (thread.image) {
+                        // Comprobamos si es video buscando extensiones o rutas de cloudinary
+                        const isVideo = thread.image.endsWith('.mp4') || thread.image.endsWith('.webm') || thread.image.endsWith('.mov') || thread.image.includes('/video/upload/');
+                        
+                        if (isVideo) {
+                            mediaHTML = `
+                                <div style="position:relative; width:100%; margin-top:10px; border-radius:4px; overflow:hidden; border:2px solid #000; background:#000;">
+                                    <video controls style="width:100%; display:block; max-height:400px;">
+                                        <source src="${thread.image}" type="video/mp4">
+                                        Tu navegador no soporta videos.
+                                    </video>
+                                </div>`;
+                        } else {
+                            mediaHTML = `<img src="${thread.image}" style="width:100%; max-height:400px; object-fit:contain; background:#000; border-radius:4px; margin-top:10px; border:2px solid #000;" alt="Adjunto">`;
+                        }
+                    }
+
                     newThread.innerHTML = `
                         <div class="thread-date">${thread.displayDate}</div>
                         <h2>${thread.title} ${insigniaVerificado}</h2>
                         <p><strong>Categoría:</strong> ${thread.category}</p>
                         <p>${thread.description}</p>
+                        
+                        ${mediaHTML}
+
                         <div class="thread-actions">
                             <button class="like-button ${isLiked ? 'liked' : ''}" data-thread-id="${key}" data-like-count="${thread.likeCount || 0}">
                                 <i class="fas fa-heart"></i> ${formattedLikeCount}
@@ -275,25 +313,85 @@ document.addEventListener('DOMContentLoaded', function () {
         };
     }
 
-    if(newThreadForm) {
-        newThreadForm.onsubmit = (event) => {
-            event.preventDefault();
-            let thread = {
-                title: document.getElementById('title').value,
-                category: document.getElementById('category').value,
-                description: document.getElementById('description').value
-            };
-            saveThreadToFirebase(thread);
-            newThreadModalContent.style.display = 'none';
-            newThreadForm.reset();
-            loadThreadsFromFirebase(currentPage, searchTerm);
-        };
-    }
-
     if(searchInput) {
         searchInput.oninput = (event) => {
             searchTerm = event.target.value;
             currentPage = 1;
+            loadThreadsFromFirebase(currentPage, searchTerm);
+        };
+    }
+
+    // --- NUEVA LÓGICA DE ENVÍO DE FORMULARIO (CLOUDINARY) ---
+    if(newThreadForm) {
+        newThreadForm.onsubmit = async (event) => {
+            event.preventDefault();
+
+            // Interfaz de carga
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = "Subiendo archivo...";
+            submitBtn.disabled = true;
+
+            const title = document.getElementById('title').value;
+            const category = document.getElementById('category').value;
+            const description = document.getElementById('description').value;
+            const fileInput = document.getElementById('imageFile');
+            
+            let mediaUrl = ''; // Aquí guardaremos el link de Cloudinary
+
+            // 1. SUBIR A CLOUDINARY (Si hay archivo)
+            if (fileInput.files && fileInput.files[0]) {
+                const file = fileInput.files[0];
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                // --- CONFIGURACIÓN DE CLOUDINARY ---
+                const uploadPreset = 'comunidad_arc'; // Tu preset
+                const cloudName = 'dmrlmfoip'; // <--- ¡PON TU CLOUD NAME AQUÍ! (Dashboard)
+                
+                formData.append('upload_preset', uploadPreset);
+                
+                // Usamos /auto/upload para que Cloudinary decida si es imagen o video
+                const url = `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`;
+
+                try {
+                    const response = await fetch(url, { method: 'POST', body: formData });
+                    const data = await response.json();
+                    
+                    if (data.secure_url) {
+                        mediaUrl = data.secure_url; // ¡Tenemos el link!
+                    } else {
+                        console.error("Error Cloudinary:", data);
+                        alert("Error al subir archivo. Verifica tu Cloud Name.");
+                        submitBtn.textContent = originalText;
+                        submitBtn.disabled = false;
+                        return;
+                    }
+                } catch (error) {
+                    console.error("Error red:", error);
+                    alert("Error de conexión al subir imagen.");
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
+                    return;
+                }
+            }
+
+            // 2. GUARDAR EN FIREBASE
+            let thread = {
+                title: title,
+                category: category,
+                description: description,
+                image: mediaUrl // Guardamos el link de la foto/video
+            };
+            
+            saveThreadToFirebase(thread);
+            
+            // Limpiar y recargar
+            newThreadModalContent.style.display = 'none';
+            newThreadForm.reset();
+            document.getElementById('fileName').textContent = "";
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
             loadThreadsFromFirebase(currentPage, searchTerm);
         };
     }
