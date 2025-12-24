@@ -10,7 +10,7 @@ html, body {
     width: 100%; margin: 0; padding: 0; overflow-x: hidden;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     color: #e1e1e1;
-    background-color: #000; /* Fondo más oscuro para parecerse a la ref */
+    background-color: #000;
     min-height: 100vh; 
     display: flex; flex-direction: column; 
     background-image: linear-gradient(rgba(10, 10, 10, 0.9), rgba(10, 10, 10, 0.9)), 
@@ -73,7 +73,7 @@ h1 {
     align-items: center; justify-content: center; border-radius: 50%;
 }
 .nav-item:active { transform: scale(0.9); opacity: 0.7; }
-.add-btn { color: #fff; font-size: 1.8rem; } /* Más minimalista */
+.add-btn { color: #fff; font-size: 1.8rem; } 
 
 /* =========================================
    4. CONTENEDOR DE CONTENIDO
@@ -144,20 +144,50 @@ h1 {
 .user-search-avatar { width: 44px; height: 44px; border-radius: 50%; margin-right: 12px; }
 
 /* =========================================
-   7. PERFIL
+   7. PERFIL DE USUARIO (CENTRADO Y APEGADO)
    ========================================= */
-.profile-header-container { padding: 20px 15px; border-bottom: 1px solid #262626; }
-.profile-top-section { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; }
-.profile-avatar-big { width: 80px; height: 80px; border-radius: 50%; border: 2px solid #000; }
+.profile-header-container {
+    background: transparent;
+    padding: 20px 15px 5px 15px;
+    border-bottom: 1px solid #262626;
+    text-align: center;
+    display: flex; flex-direction: column; align-items: center;
+}
+
+/* Foto y Nombres juntos */
+.profile-top-section {
+    display: flex; flex-direction: column; align-items: center;
+    margin-bottom: 10px; width: 100%;
+}
+
+.profile-avatar-big {
+    width: 90px; height: 90px;
+    border-radius: 50%; border: 2px solid #1a1a1a;
+    object-fit: cover; margin-bottom: 10px;
+}
+
+.username-large { color: #fff; font-size: 1.3rem; font-weight: 700; margin-bottom: 2px; }
+.handle-large { color: #a8a8a8; font-size: 0.95rem; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+
+.profile-bio-section {
+    color: #f1f1f1; font-size: 0.95em; line-height: 1.4;
+    margin-bottom: 15px; max-width: 90%; text-align: center;
+}
 
 .profile-stats-bar {
-    display: flex; justify-content: space-around; margin: 15px 0;
-    padding: 10px 0; border-top: 1px solid #262626; border-bottom: 1px solid #262626;
+    display: flex; justify-content: center; gap: 30px;
+    margin: 5px 0 20px 0; width: 100%;
 }
-.p-stat { text-align: center; }
-.p-stat span { display: block; font-weight: 600; font-size: 1.1em; color: white; }
-.p-stat label { font-size: 0.9em; color: #a8a8a8; }
-.profile-bio-section { color: #f1f1f1; font-size: 0.95em; line-height: 1.4; margin-bottom: 15px; }
+.p-stat { text-align: center; cursor: pointer; }
+.p-stat span { display: block; font-weight: 700; font-size: 1.1em; color: white; }
+.p-stat label { font-size: 0.85em; color: #888; }
+
+/* Botones de acción Perfil */
+.profile-action-buttons { width: 100%; margin-bottom: 10px; }
+.profile-action-buttons button {
+    width: 100%; background-color: #fff; color: #000;
+    border-radius: 8px; padding: 8px 0; font-weight: 600; font-size: 0.95em;
+}
 
 /* =========================================
    8. MODALES
@@ -188,7 +218,7 @@ button {
 button:hover { opacity: 0.9; }
 
 /* =========================================
-   9. LISTA DE USUARIOS (SEGUIDORES) - ESTILO EXACTO
+   9. LISTA DE USUARIOS (SEGUIDORES)
    ========================================= */
 .user-list-item { 
     display: flex; align-items: center; justify-content: space-between; 
@@ -206,23 +236,20 @@ button:hover { opacity: 0.9; }
 /* Nombre real (Abajo - Gris) */
 .user-list-handle { color: #a8a8a8; font-size: 13px; margin-top: 2px; }
 
-/* BOTÓN SEGUIR (TIPO INSTAGRAM) */
-.btn-small-follow { 
-    height: 32px; 
-    min-width: 75px; 
-    padding: 0 16px; 
-    border-radius: 8px; 
-    font-size: 14px; 
-    font-weight: 600; 
-    border: none; 
-    cursor: pointer; 
-    text-align: center; 
-    margin-left: 10px;
+/* BOTÓN SEGUIR (PEQUEÑO Y AZUL) */
+.btn-small-follow {
+    min-width: 90px;
+    height: 34px;
+    padding: 0 16px;
+    border-radius: 8px;
+    border: none; margin-top: 0;
+    font-size: 14px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: background 0.2s, transform 0.1s;
 }
-/* Estado: SEGUIR (Azul) */
-.btn-state-follow { background-color: #0095f6; color: white; }
-/* Estado: SIGUIENDO (Gris Oscuro) */
-.btn-state-following { background-color: #363636; color: #fff; }
+.btn-state-follow { background-color: #5875ff; color: white; }
+.btn-state-following { background-color: #333; color: #e1e1e1; border: 1px solid #444; }
+.btn-small-follow:active { transform: scale(0.96); opacity: 0.9; }
 
 /* =========================================
    10. OTROS (Tabs, Menús, Carrusel)
@@ -235,7 +262,7 @@ button:hover { opacity: 0.9; }
 
 /* Menú 3 Puntos */
 .post-header-right { margin-left: auto; position: relative; }
-.options-btn { color: #a8a8a8; padding: 5px; font-size: 1.1em; }
+.options-btn { color: #a8a8a8; padding: 5px; font-size: 1.1em; background:none; border:none; cursor:pointer;}
 .post-options-dropdown {
     display: none; position: absolute; top: 25px; right: 0;
     background: #262626; border-radius: 12px; width: 180px;
@@ -263,4 +290,6 @@ button:hover { opacity: 0.9; }
 .mini-action-menu div:hover { background: #333; }
 
 .status-pill { position: absolute; top: -8px; left: -5px; background: #333; padding: 2px 6px; border-radius: 4px; font-size: 0.7em; color: #ccc; }
-.time-display { font-size: 0.8em; color: #777; margin-right: 5px; } 
+.time-display { font-size: 0.8em; color: #777; margin-right: 5px; }
+.upload-btn-gray { display: block; text-align: center; padding: 10px; border: 1px dashed #555; border-radius: 6px; color: #aaa; margin: 10px 0; cursor: pointer; }
+.switch-auth { text-align: center; font-size: 0.85em; color: #0095f6; margin-top: 10px; cursor: pointer; text-decoration: underline; }
