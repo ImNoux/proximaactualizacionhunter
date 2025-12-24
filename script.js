@@ -327,88 +327,91 @@ function renderFullProfile(container) {
     const myUser = localStorage.getItem('savedRobloxUser');
     const isMe = target === myUser;
     const isVerified = verifiedUsersList.includes(target.toLowerCase());
-    const verifiedIconHTML = isVerified ? '<i class="fas fa-check-circle verified-icon"></i>' : '';
+    const verifiedIconHTML = isVerified ? '<i class="fas fa-check-circle verified-icon" style="color:#0095f6;"></i>' : '';
     const amIAdmin = allUsersMap[myUser]?.role === 'admin';
     const isBanned = ud.isBanned === true;
     const isBlockedByMe = myBlockedList.includes(target);
 
+    // Datos a mostrar
     let displayNameToShow = ud.displayName || target;
     let avatarToShow = ud.avatar || DEFAULT_AVATAR;
     let bioToShow = ud.bio || "Sin biografía";
+    let handleToShow = `@${ud.customHandle || target}`;
 
+    // Lógica de baneado
     if (isBanned) {
         if (amIAdmin) displayNameToShow += " (SUSPENDIDO)";
-        else { displayNameToShow = "Usuario Eliminado"; avatarToShow = DEFAULT_AVATAR; bioToShow = ""; }
+        else { 
+            displayNameToShow = "Usuario Eliminado"; 
+            avatarToShow = DEFAULT_AVATAR; 
+            bioToShow = ""; 
+            handleToShow = "";
+        }
     }
 
     const isFollowing = myFollowingList.includes(target);
-    const followBtnText = isFollowing ? "Dejar de seguir" : "Seguir";
-    const btnStyle = isFollowing ? "background-color: #555;" : ""; 
+    const followBtnText = isFollowing ? "Siguiendo" : "Seguir";
+    const btnClass = isFollowing ? "background-color: #333; color: white;" : "background-color: white; color: black;"; 
+    
     const userStatus = (ud.status && ud.status.trim() !== "" && !isBanned) ? `<div class="status-pill">${ud.status}</div>` : '';
     
+    // Botones de acción
     let actionButtons = '';
     if (isMe) {
-        actionButtons = `<button onclick="openEditProfileModal()">Editar perfil</button>`;
+        actionButtons = `<button onclick="openEditProfileModal()" style="background-color: #333; color: white; border: 1px solid #444;">Editar perfil</button>`;
     } else {
         if (amIAdmin && isBanned) {
-            actionButtons = `<button onclick="unbanUser('${target}')" style="background:#00e676; width:100%; font-weight:bold;">DESBANEAR USUARIO</button>`;
+            actionButtons = `<button onclick="unbanUser('${target}')" style="background:#00e676; width:100%; font-weight:bold; color:black;">DESBANEAR USUARIO</button>`;
         } else if (!isBanned) {
             if (isBlockedByMe) {
-                actionButtons = `<button onclick="unblockUser('${target}')" style="background:#555; width:100%;">Desbloquear</button>`;
+                actionButtons = `<button onclick="unblockUser('${target}')" style="background:#333; width:100%; color:white;">Desbloquear</button>`;
             } else {
                 actionButtons = `
-                    <div style="display:flex; gap:10px; justify-content:center;">
-                        <button onclick="toggleFollow('${target}')" style="${btnStyle}; flex:1;">${followBtnText}</button>
-                        <button onclick="reportUser('${target}')" style="background:#444; width:50px; display:flex; justify-content:center; align-items:center;" title="Reportar">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </button>
-                        <button onclick="blockUser('${target}')" style="background:#444; width:50px; display:flex; justify-content:center; align-items:center;" title="Bloquear">
-                            <i class="fas fa-user-slash" style="color:#ff4d4d;"></i>
-                        </button>
-                        ${amIAdmin ? `<button onclick="banUser('${target}')" style="background:#cc0000; width:50px; display:flex; justify-content:center; align-items:center;" title="BANEAR"><i class="fas fa-ban"></i></button>` : ''}
+                    <div style="display:flex; gap:8px; justify-content:center; width:100%;">
+                        <button onclick="toggleFollow('${target}')" style="${btnClass} flex:1;">${followBtnText}</button>
+                        <button onclick="reportUser('${target}')" style="background:#333; width:40px; color:white; display:flex; justify-content:center; align-items:center; padding:0;" title="Reportar"><i class="fas fa-exclamation-triangle"></i></button>
+                        <button onclick="blockUser('${target}')" style="background:#333; width:40px; color:#ff4d4d; display:flex; justify-content:center; align-items:center; padding:0;" title="Bloquear"><i class="fas fa-user-slash"></i></button>
+                        ${amIAdmin ? `<button onclick="banUser('${target}')" style="background:#500; width:40px; color:white; display:flex; justify-content:center; align-items:center; padding:0;" title="BANEAR"><i class="fas fa-ban"></i></button>` : ''}
                     </div>
                 `;
             }
         }
     }
     
+    // Stats (Siguiendo - Seguidores)
     const statsHTML = !isBanned && !isBlockedByMe ? `
         <div class="profile-stats-bar">
-            <div class="p-stat" onclick="openListModal('following', '${target}')" style="cursor:pointer;">
+            <div class="p-stat" onclick="openListModal('following', '${target}')">
                 <span>${formatCount(ud.followingCount)}</span><label>Siguiendo</label>
             </div>
-            <div class="p-stat" onclick="openListModal('followers', '${target}')" style="cursor:pointer;">
+            <div class="p-stat" onclick="openListModal('followers', '${target}')">
                 <span>${formatCount(ud.followersCount)}</span><label>Seguidores</label>
             </div>
         </div>` : '';
 
     const header = document.createElement('div');
     header.className = 'profile-header-container';
+    
+    // HTML REORGANIZADO: FOTO -> NOMBRE -> BIO -> STATS -> BOTONES
     header.innerHTML = `
         <div class="profile-top-section">
-            <div class="avatar-wrapper" style="cursor:default;">
+            <div class="avatar-wrapper" style="cursor:default; position:relative;">
                 ${userStatus}
-                <img src="${avatarToShow}" class="profile-avatar-big" style="width:80px; height:80px; border-radius:50%;">
+                <img src="${avatarToShow}" class="profile-avatar-big">
             </div>
-            <div style="margin-left:15px;">
-                <div class="username-styled" style="font-size:1.4em;">
-                    ${displayNameToShow}
-                </div>
-                <div class="user-rank-styled">${isBanned ? "" : (ud.role || "Miembro")}</div>
-                ${!isBanned ? `<span style="color:#00a2ff; font-size:0.9em; display:block; margin-top:5px;">@${ud.customHandle || target} ${verifiedIconHTML}</span>` : ''}
-            </div>
+            <div class="username-large">${displayNameToShow}</div>
+            <div class="handle-large">${handleToShow} ${verifiedIconHTML}</div>
         </div>
         <div class="profile-bio-section">${makeLinksClickable(bioToShow)}</div>
         ${statsHTML}
-        <div style="padding: 10px 15px;">
-            ${actionButtons}
-        </div>
+        <div class="profile-action-buttons">${actionButtons}</div>
     `;
     container.appendChild(header);
+
     if (!isBanned && !isBlockedByMe) {
         allThreadsData.forEach(([k, t]) => { if(t.username === target) renderThread(k, t, container); });
     } else if (isBlockedByMe) {
-        container.innerHTML += '<p style="text-align:center; padding:20px; color:#777;">Has bloqueado a este usuario.</p>';
+        container.innerHTML += '<p style="text-align:center; padding:40px; color:#777;">Has bloqueado a este usuario.</p>';
     }
 }
 function renderPostList(container, isSearch) {
@@ -507,6 +510,7 @@ window.switchListTab = function(tabName) {
     const container = document.getElementById('userListContainer');
     container.innerHTML = ''; 
 
+    // --- CHECK DE PRIVACIDAD CORREGIDO ---
     if (tabName === 'followers' && targetData.privateFollowers === true && currentListUser !== myUser) {
         container.innerHTML = '<p style="text-align:center; padding:30px; color:#777;">La lista de seguidores de este perfil es privada.</p>';
         return;
