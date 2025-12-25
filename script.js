@@ -221,10 +221,12 @@ function renderThread(key, thread, container) {
         </div>`;
     }
 
+    // MENÚ Y TIEMPO ARRIBA
     let optionsMenuHTML = '';
     if (!isMe && myUser) {
         optionsMenuHTML = `
         <div class="post-header-right">
+            <span class="time-display" style="margin-right:8px;">${timeAgo}</span>
             <button class="options-btn" onclick="togglePostOptions('${key}')"><i class="fas fa-ellipsis-h"></i></button>
             <div id="opts-${key}" class="post-options-dropdown">
                 <div class="post-option-item" onclick="copyPostLink('${key}')">
@@ -272,7 +274,7 @@ function renderThread(key, thread, container) {
             </div>
             ${optionsMenuHTML}
         </div>
-        ${isMe ? '' : `<div style="font-size:0.8em; color:#777; margin-bottom:5px; text-align:right;">${timeAgo}</div>`}
+        
         <h3 style="margin:5px 0;">${thread.title}</h3>
         <p>${makeLinksClickable(thread.description)}</p>
         ${mediaHTML}
@@ -332,13 +334,11 @@ function renderFullProfile(container) {
     const isBanned = ud.isBanned === true;
     const isBlockedByMe = myBlockedList.includes(target);
 
-    // Datos a mostrar
     let displayNameToShow = ud.displayName || target;
     let avatarToShow = ud.avatar || DEFAULT_AVATAR;
     let bioToShow = ud.bio || "Sin biografía";
     let handleToShow = `@${ud.customHandle || target}`;
 
-    // Lógica de baneado
     if (isBanned) {
         if (amIAdmin) displayNameToShow += " (SUSPENDIDO)";
         else { 
@@ -355,7 +355,6 @@ function renderFullProfile(container) {
     
     const userStatus = (ud.status && ud.status.trim() !== "" && !isBanned) ? `<div class="status-pill">${ud.status}</div>` : '';
     
-    // Botones de acción
     let actionButtons = '';
     if (isMe) {
         actionButtons = `<button onclick="openEditProfileModal()" style="background-color: #333; color: white; border: 1px solid #444;">Editar perfil</button>`;
@@ -378,7 +377,6 @@ function renderFullProfile(container) {
         }
     }
     
-    // Stats (Siguiendo - Seguidores)
     const statsHTML = !isBanned && !isBlockedByMe ? `
         <div class="profile-stats-bar">
             <div class="p-stat" onclick="openListModal('following', '${target}')">
@@ -392,7 +390,6 @@ function renderFullProfile(container) {
     const header = document.createElement('div');
     header.className = 'profile-header-container';
     
-    // HTML REORGANIZADO: FOTO -> NOMBRE -> BIO -> STATS -> BOTONES
     header.innerHTML = `
         <div class="profile-top-section">
             <div class="avatar-wrapper" style="cursor:default; position:relative;">
@@ -443,8 +440,8 @@ function renderUserSearch(container) {
     ).forEach(username => {
         const uData = allUsersMap[username];
         
-        let topText = uData.customHandle || username; // Arriba: @usuario
-        let bottomText = uData.displayName || username; // Abajo: Nombre real
+        let topText = uData.customHandle || username; 
+        let bottomText = uData.displayName || username; 
         
         let avatar = uData.avatar || DEFAULT_AVATAR;
         const isVerified = verifiedUsersList.includes(username.toLowerCase());
@@ -510,7 +507,6 @@ window.switchListTab = function(tabName) {
     const container = document.getElementById('userListContainer');
     container.innerHTML = ''; 
 
-    // --- CHECK DE PRIVACIDAD CORREGIDO ---
     if (tabName === 'followers' && targetData.privateFollowers === true && currentListUser !== myUser) {
         container.innerHTML = '<p style="text-align:center; padding:30px; color:#777;">La lista de seguidores de este perfil es privada.</p>';
         return;
@@ -790,7 +786,12 @@ window.registerSystem = async function() {
     } catch(e) { showToast("Error al registrar", "error"); }
 };
 
-window.logoutSystem = () => showConfirm("¿Cerrar sesión?", () => { localStorage.clear(); window.location.href = window.location.href; });
+window.logoutSystem = () => showConfirm("¿Cerrar sesión?", () => { 
+    localStorage.clear(); 
+    // Usamos reload para garantizar limpieza total, es lo más seguro y rápido en producción
+    window.location.reload(); 
+});
+
 const searchIn = document.getElementById('searchInput');
 if(searchIn) searchIn.oninput = (e) => { searchTerm = e.target.value.trim(); renderCurrentView(); };
 window.toggleLike = (k, c, b) => {
