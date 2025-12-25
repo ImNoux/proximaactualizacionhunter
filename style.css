@@ -4,6 +4,21 @@
 *, *::before, *::after { 
     box-sizing: border-box; 
     -webkit-tap-highlight-color: transparent; 
+    
+    /* --- NUEVO: BLOQUEO DE SELECCIÓN GLOBAL --- */
+    /* Esto evita que se ponga azul cualquier texto al tocarlo */
+    -webkit-user-select: none; 
+    -moz-user-select: none;    
+    -ms-user-select: none;     
+    user-select: none;         
+}
+
+/* IMPORTANTE: Permitir selección SOLO en inputs y textareas para poder escribir */
+input, textarea {
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+    user-select: text !important;
 }
 
 html, body {
@@ -126,7 +141,7 @@ h1 {
 @keyframes pop { 50% { transform: scale(1.3); } }
 
 /* =========================================
-   6. BÚSQUEDA Y ACTIVIDAD (CORREGIDO)
+   6. BÚSQUEDA Y ACTIVIDAD
    ========================================= */
 #searchContainer { padding: 10px; max-width: 600px; margin: 0 auto; width: 100%; }
 .search-box-wrapper { position: relative; width: 100%; }
@@ -143,21 +158,13 @@ h1 {
 }
 .user-search-avatar { width: 44px; height: 44px; border-radius: 50%; margin-right: 12px; }
 
-/* FIX: ACTIVIDAD / NOTIFICACIONES */
 .activity-item { 
-    display: flex; 
-    align-items: center; 
-    padding: 12px 15px; 
-    border-bottom: 1px solid #262626; 
-    gap: 12px;
+    display: flex; align-items: center; padding: 12px 15px; 
+    border-bottom: 1px solid #262626; gap: 12px;
 }
 .activity-avatar { 
-    width: 44px; 
-    height: 44px; 
-    min-width: 44px; /* IMPORTANTE: Evita que se aplaste */
-    border-radius: 50%; 
-    object-fit: cover; /* IMPORTANTE: Evita que se vea gigante */
-    border: 1px solid #333;
+    width: 44px; height: 44px; min-width: 44px; 
+    border-radius: 50%; object-fit: cover; border: 1px solid #333;
 }
 .activity-text { font-size: 0.95em; color: #ccc; }
 .activity-text strong { color: white; font-weight: 600; cursor: pointer; }
@@ -186,18 +193,10 @@ h1 {
 
 .username-large { color: #fff; font-size: 1.3rem; font-weight: 700; margin-bottom: 2px; }
 
-/* FIX: HANDLE COPIABLE */
 .handle-large { 
-    color: #a8a8a8; 
-    font-size: 0.95rem; 
-    margin-bottom: 10px; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    gap: 4px;
-    cursor: copy; /* Icono de copiar al pasar mouse */
-    user-select: none; /* No permite seleccionar texto azul */
-    transition: opacity 0.2s;
+    color: #a8a8a8; font-size: 0.95rem; margin-bottom: 10px; 
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    cursor: pointer; transition: opacity 0.2s;
 }
 .handle-large:active { opacity: 0.5; }
 
@@ -265,7 +264,7 @@ button:hover { opacity: 0.9; }
 }
 .user-list-handle { color: #a8a8a8; font-size: 13px; margin-top: 2px; }
 
-/* BOTÓN SEGUIR (PEQUEÑO Y AZUL) */
+/* BOTÓN SEGUIR PEQUEÑO */
 .btn-small-follow {
     min-width: 90px; height: 34px; padding: 0 16px; border-radius: 8px;
     border: none; margin-top: 0; font-size: 14px; font-weight: 600;

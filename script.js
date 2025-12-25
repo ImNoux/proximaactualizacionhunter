@@ -54,6 +54,12 @@ window.showConfirm = function(message, callback) {
     }
 };
 
+window.copyToClipboard = function(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        showToast("Usuario copiado", "success");
+    });
+};
+
 function makeLinksClickable(text) {
     if (!text) return '';
     const urlRegex = /(https?:\/\/[^\s]+)/g;
@@ -221,7 +227,6 @@ function renderThread(key, thread, container) {
         </div>`;
     }
 
-    // MENÚ Y TIEMPO ARRIBA
     let optionsMenuHTML = '';
     if (!isMe && myUser) {
         optionsMenuHTML = `
@@ -274,7 +279,6 @@ function renderThread(key, thread, container) {
             </div>
             ${optionsMenuHTML}
         </div>
-        
         <h3 style="margin:5px 0;">${thread.title}</h3>
         <p>${makeLinksClickable(thread.description)}</p>
         ${mediaHTML}
@@ -337,7 +341,7 @@ function renderFullProfile(container) {
     let displayNameToShow = ud.displayName || target;
     let avatarToShow = ud.avatar || DEFAULT_AVATAR;
     let bioToShow = ud.bio || "Sin biografía";
-    let handleToShow = `@${ud.customHandle || target}`;
+    let handleToShow = ud.customHandle || target;
 
     if (isBanned) {
         if (amIAdmin) displayNameToShow += " (SUSPENDIDO)";
@@ -397,7 +401,7 @@ function renderFullProfile(container) {
                 <img src="${avatarToShow}" class="profile-avatar-big">
             </div>
             <div class="username-large">${displayNameToShow}</div>
-            <div class="handle-large">${handleToShow} ${verifiedIconHTML}</div>
+            <div class="handle-large" onclick="copyToClipboard('@${handleToShow}')">@${handleToShow} ${verifiedIconHTML}</div>
         </div>
         <div class="profile-bio-section">${makeLinksClickable(bioToShow)}</div>
         ${statsHTML}
@@ -788,7 +792,6 @@ window.registerSystem = async function() {
 
 window.logoutSystem = () => showConfirm("¿Cerrar sesión?", () => { 
     localStorage.clear(); 
-    // Usamos reload para garantizar limpieza total, es lo más seguro y rápido en producción
     window.location.reload(); 
 });
 
