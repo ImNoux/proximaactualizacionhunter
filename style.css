@@ -126,7 +126,7 @@ h1 {
 @keyframes pop { 50% { transform: scale(1.3); } }
 
 /* =========================================
-   6. BÚSQUEDA
+   6. BÚSQUEDA Y ACTIVIDAD (CORREGIDO)
    ========================================= */
 #searchContainer { padding: 10px; max-width: 600px; margin: 0 auto; width: 100%; }
 .search-box-wrapper { position: relative; width: 100%; }
@@ -143,8 +143,27 @@ h1 {
 }
 .user-search-avatar { width: 44px; height: 44px; border-radius: 50%; margin-right: 12px; }
 
+/* FIX: ACTIVIDAD / NOTIFICACIONES */
+.activity-item { 
+    display: flex; 
+    align-items: center; 
+    padding: 12px 15px; 
+    border-bottom: 1px solid #262626; 
+    gap: 12px;
+}
+.activity-avatar { 
+    width: 44px; 
+    height: 44px; 
+    min-width: 44px; /* IMPORTANTE: Evita que se aplaste */
+    border-radius: 50%; 
+    object-fit: cover; /* IMPORTANTE: Evita que se vea gigante */
+    border: 1px solid #333;
+}
+.activity-text { font-size: 0.95em; color: #ccc; }
+.activity-text strong { color: white; font-weight: 600; cursor: pointer; }
+
 /* =========================================
-   7. PERFIL DE USUARIO (CENTRADO Y APEGADO)
+   7. PERFIL DE USUARIO
    ========================================= */
 .profile-header-container {
     background: transparent;
@@ -154,7 +173,6 @@ h1 {
     display: flex; flex-direction: column; align-items: center;
 }
 
-/* Foto y Nombres juntos */
 .profile-top-section {
     display: flex; flex-direction: column; align-items: center;
     margin-bottom: 10px; width: 100%;
@@ -167,7 +185,21 @@ h1 {
 }
 
 .username-large { color: #fff; font-size: 1.3rem; font-weight: 700; margin-bottom: 2px; }
-.handle-large { color: #a8a8a8; font-size: 0.95rem; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+
+/* FIX: HANDLE COPIABLE */
+.handle-large { 
+    color: #a8a8a8; 
+    font-size: 0.95rem; 
+    margin-bottom: 10px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 4px;
+    cursor: copy; /* Icono de copiar al pasar mouse */
+    user-select: none; /* No permite seleccionar texto azul */
+    transition: opacity 0.2s;
+}
+.handle-large:active { opacity: 0.5; }
 
 .profile-bio-section {
     color: #f1f1f1; font-size: 0.95em; line-height: 1.4;
@@ -182,7 +214,6 @@ h1 {
 .p-stat span { display: block; font-weight: 700; font-size: 1.1em; color: white; }
 .p-stat label { font-size: 0.85em; color: #888; }
 
-/* Botones de acción Perfil */
 .profile-action-buttons { width: 100%; margin-bottom: 10px; }
 .profile-action-buttons button {
     width: 100%; background-color: #fff; color: #000;
@@ -228,40 +259,33 @@ button:hover { opacity: 0.9; }
 .user-list-avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
 .user-list-texts { display: flex; flex-direction: column; justify-content: center; }
 
-/* Nombre de usuario (Arriba - Blanco) */
 .user-list-name { 
     font-weight: 600; font-size: 14px; color: #fff; 
     display: flex; align-items: center; gap: 4px;
 }
-/* Nombre real (Abajo - Gris) */
 .user-list-handle { color: #a8a8a8; font-size: 13px; margin-top: 2px; }
 
 /* BOTÓN SEGUIR (PEQUEÑO Y AZUL) */
 .btn-small-follow {
-    min-width: 90px;
-    height: 34px;
-    padding: 0 16px;
-    border-radius: 8px;
-    border: none; margin-top: 0;
-    font-size: 14px; font-weight: 600;
+    min-width: 90px; height: 34px; padding: 0 16px; border-radius: 8px;
+    border: none; margin-top: 0; font-size: 14px; font-weight: 600;
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; transition: background 0.2s, transform 0.1s;
+    margin-left: 10px; 
 }
 .btn-state-follow { background-color: #5875ff; color: white; }
 .btn-state-following { background-color: #333; color: #e1e1e1; border: 1px solid #444; }
 .btn-small-follow:active { transform: scale(0.96); opacity: 0.9; }
 
 /* =========================================
-   10. OTROS (Tabs, Menús, Carrusel)
+   10. OTROS
    ========================================= */
-/* Tabs */
 .modal-tabs-header { display: flex; background: #000; border-bottom: 1px solid #262626; position: relative; }
 .modal-tab { flex: 1; text-align: center; padding: 14px 0; color: #777; font-weight: 600; cursor: pointer; font-size: 0.95em; }
 .modal-tab.active { color: white; border-bottom: 1px solid white; }
 .close-list-btn { position: absolute; right: 15px; top: 12px; font-size: 1.5em; cursor: pointer; color: #fff; z-index: 10; }
 
-/* Menú 3 Puntos */
-.post-header-right { margin-left: auto; position: relative; }
+.post-header-right { margin-left: auto; position: relative; display: flex; align-items: center; gap:8px; }
 .options-btn { color: #a8a8a8; padding: 5px; font-size: 1.1em; background:none; border:none; cursor:pointer;}
 .post-options-dropdown {
     display: none; position: absolute; top: 25px; right: 0;
@@ -273,14 +297,12 @@ button:hover { opacity: 0.9; }
 .post-option-item:hover { background-color: #333; }
 .post-option-item.danger { color: #ff3040; }
 
-/* Carrusel */
 .media-wrapper { position: relative; }
 .media-carousel { display: flex; gap: 0; overflow-x: auto; scroll-snap-type: x mandatory; margin-top: 8px; border-radius: 12px; scrollbar-width: none; }
 .media-carousel::-webkit-scrollbar { display: none; }
 .media-carousel img { scroll-snap-align: center; min-width: 100%; height: 350px; object-fit: cover; }
 .image-counter-badge { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6); color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 0.75em; }
 
-/* Avatar Menu */
 .avatar-wrapper { position: relative; display: inline-block; }
 .plus-badge { position: absolute; bottom: -2px; right: -2px; width: 16px; height: 16px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 .plus-badge i { color: #000; font-size: 9px; }
