@@ -4,16 +4,12 @@
 *, *::before, *::after { 
     box-sizing: border-box; 
     -webkit-tap-highlight-color: transparent; 
-    
-    /* --- NUEVO: BLOQUEO DE SELECCIÓN GLOBAL --- */
-    /* Esto evita que se ponga azul cualquier texto al tocarlo */
     -webkit-user-select: none; 
     -moz-user-select: none;    
     -ms-user-select: none;     
     user-select: none;         
 }
 
-/* IMPORTANTE: Permitir selección SOLO en inputs y textareas para poder escribir */
 input, textarea {
     -webkit-user-select: text !important;
     -moz-user-select: text !important;
@@ -116,15 +112,39 @@ h1 {
 
 .user-info-display {
     display: flex; flex-direction: column; justify-content: center; line-height: 1.2;
+    padding-top: 2px;
+}
+
+/* CONTENEDOR NOMBRE + TIEMPO */
+.username-row {
+    display: flex;
+    align-items: baseline; /* Alinea el texto por la base */
+    gap: 6px; /* Espacio entre nombre y tiempo */
 }
 
 .username-styled {
     color: #fff; font-weight: 600; font-size: 0.95em;
-    display: flex; align-items: center; gap: 4px; cursor: pointer;
+    cursor: pointer;
+}
+
+/* ESTILO DEL TIEMPO AL LADO DEL NOMBRE */
+.post-time-inline {
+    color: #777;
+    font-size: 0.9em;
+    font-weight: normal;
 }
 
 .user-rank-styled { color: #a8a8a8; font-size: 0.9em; font-weight: normal; }
 .verified-icon { color: #0095f6; font-size: 0.85em; margin-left: 2px; }
+
+/* Menú 3 puntos a la derecha */
+.post-header-right { 
+    margin-left: auto; 
+    position: relative; 
+    margin-top: -5px; 
+}
+
+.options-btn { color: #a8a8a8; padding: 5px; font-size: 1.1em; background:none; border:none; cursor:pointer;}
 
 .thread h3 { color: #fff; font-size: 1em; margin: 0 0 5px 0; font-weight: 600; }
 .thread p { color: #f1f1f1; font-size: 0.95em; line-height: 1.4; margin-bottom: 10px; }
@@ -191,7 +211,7 @@ h1 {
     object-fit: cover; margin-bottom: 10px;
 }
 
-.username-large { color: #fff; font-size: 1.3rem; font-weight: 700; margin-bottom: 2px; }
+.username-large { color: #fff; font-size: 1.3rem; font-weight: 700; margin-bottom: 2px; cursor: pointer; }
 
 .handle-large { 
     color: #a8a8a8; font-size: 0.95rem; margin-bottom: 10px; 
@@ -208,6 +228,7 @@ h1 {
 .profile-stats-bar {
     display: flex; justify-content: center; gap: 30px;
     margin: 5px 0 20px 0; width: 100%;
+    cursor: default;
 }
 .p-stat { text-align: center; cursor: pointer; }
 .p-stat span { display: block; font-weight: 700; font-size: 1.1em; color: white; }
@@ -264,7 +285,6 @@ button:hover { opacity: 0.9; }
 }
 .user-list-handle { color: #a8a8a8; font-size: 13px; margin-top: 2px; }
 
-/* BOTÓN SEGUIR PEQUEÑO */
 .btn-small-follow {
     min-width: 90px; height: 34px; padding: 0 16px; border-radius: 8px;
     border: none; margin-top: 0; font-size: 14px; font-weight: 600;
@@ -280,12 +300,10 @@ button:hover { opacity: 0.9; }
    10. OTROS
    ========================================= */
 .modal-tabs-header { display: flex; background: #000; border-bottom: 1px solid #262626; position: relative; }
-.modal-tab { flex: 1; text-align: center; padding: 14px 0; color: #777; font-weight: 600; cursor: pointer; font-size: 0.95em; }
+.modal-tab { flex: 1; text-align: center; padding: 14px 0; color: #777; font-weight: 600; cursor: pointer; font-size: 0.95em; -webkit-user-select: none; user-select: none; }
 .modal-tab.active { color: white; border-bottom: 1px solid white; }
 .close-list-btn { position: absolute; right: 15px; top: 12px; font-size: 1.5em; cursor: pointer; color: #fff; z-index: 10; }
 
-.post-header-right { margin-left: auto; position: relative; display: flex; align-items: center; gap:8px; }
-.options-btn { color: #a8a8a8; padding: 5px; font-size: 1.1em; background:none; border:none; cursor:pointer;}
 .post-options-dropdown {
     display: none; position: absolute; top: 25px; right: 0;
     background: #262626; border-radius: 12px; width: 180px;

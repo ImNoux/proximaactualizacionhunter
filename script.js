@@ -77,19 +77,39 @@ function formatCount(num) {
     return num;
 }
 
+// --- ACTUALIZADO: LÓGICA DE FECHAS (7 DÍAS / AÑO) ---
 function formatTimeAgo(timestamp) {
     if (!timestamp) return "";
     const now = Date.now();
     const diff = Math.floor((now - timestamp) / 1000); 
+
+    // Menos de 1 minuto
     if (diff < 60) return "hace un momento";
+    
+    // Menos de 1 hora
     const minutes = Math.floor(diff / 60);
     if (minutes < 60) return `${minutes} min`;
+    
+    // Menos de 24 horas
     const hours = Math.floor(minutes / 60);
     if (hours < 24) return `${hours} h`;
+    
+    // Menos de 7 días
     const days = Math.floor(hours / 24);
     if (days < 7) return `${days} d`;
+    
+    // Más de 7 días: Formato de fecha
     const date = new Date(timestamp);
-    return date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' });
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    const currentYear = new Date().getFullYear();
+
+    if (year === currentYear) {
+        return `${day}/${month}`; // Ej: 12/12
+    } else {
+        return `${day}/${month}/${year}`; // Ej: 12/12/2025
+    }
 }
 
 window.getUserId = function() {
@@ -231,7 +251,6 @@ function renderThread(key, thread, container) {
     if (!isMe && myUser) {
         optionsMenuHTML = `
         <div class="post-header-right">
-            <span class="time-display" style="margin-right:8px;">${timeAgo}</span>
             <button class="options-btn" onclick="togglePostOptions('${key}')"><i class="fas fa-ellipsis-h"></i></button>
             <div id="opts-${key}" class="post-options-dropdown">
                 <div class="post-option-item" onclick="copyPostLink('${key}')">
@@ -246,7 +265,7 @@ function renderThread(key, thread, container) {
             </div>
         </div>`;
     } else {
-        optionsMenuHTML = `<div class="post-header-right"><span class="time-display">${timeAgo}</span></div>`; 
+        optionsMenuHTML = `<div class="post-header-right"></div>`; 
     }
 
     let mediaHTML = '';
@@ -267,8 +286,11 @@ function renderThread(key, thread, container) {
         <div class="post-header">
             ${avatarHTML}
             <div class="user-info-display">
-                <div class="username-styled" onclick="openFullProfile('${authorName}')">
-                    ${authorData.displayName || authorName}
+                <div class="username-row">
+                    <span class="username-styled" onclick="openFullProfile('${authorName}')">
+                        ${authorData.displayName || authorName}
+                    </span>
+                    <span class="post-time-inline">${timeAgo}</span>
                 </div>
                 <div class="user-rank-styled" style="display:flex; flex-direction:column;">
                     <span>${thread.category || "Miembro"}</span>
